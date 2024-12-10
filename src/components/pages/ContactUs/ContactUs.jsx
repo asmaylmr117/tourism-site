@@ -52,8 +52,8 @@ const ContactUs = () => (
             </select>
             <input
               type="tel"
-              placeholder="Input your Phone Number in Here"
-              className="flex-1 border-2 border-b border-r border-gray-400 rounded-r-lg px-4 py-2 text-gray-800"
+              placeholder="Input your Phone Number "
+              className="w-full border-2 border-b border-r border-gray-400 rounded-r-lg px-4 py-2 text-gray-800"
             />
           </div>
         </div>
