@@ -116,7 +116,7 @@ const TravelSection = () => {
               </p>
             </div>
             {/* Image */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden max-w-md mx-auto w-full order-1 md:order-none">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden max-w-md mx-auto w-full order-1 md:order-none hover:scale-110 transform transition-all duration-300 ">
               <img
                 src="./img/p13.jpg"
                 alt="Safari Image 2"
