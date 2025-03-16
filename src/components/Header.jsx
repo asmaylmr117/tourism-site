@@ -4,13 +4,29 @@ const Header = ({ setCurrentPage, currentPage }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showSignInForm, setShowSignInForm] = useState(false);
+  const [isSignUpForm, setIsSignUpForm] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [signInSuccess, setSignInSuccess] = useState(false);
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
+  const [welcomeMessage, setWelcomeMessage] = useState(() => {
+    return localStorage.getItem('welcomeMessage') || '';
+  });
+  const [signInError, setSignInError] = useState(''); 
+  const [signUpError, setSignUpError] = useState(''); 
 
   useEffect(() => {
     document.documentElement.classList.remove("dark");
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('isLoggedIn', isLoggedIn);
+    localStorage.setItem('welcomeMessage', welcomeMessage);
+  }, [isLoggedIn, welcomeMessage]);
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -21,16 +37,81 @@ const Header = ({ setCurrentPage, currentPage }) => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
-    // Here you would typically handle the actual sign-in logic
-    setSignInSuccess(true);
-    setTimeout(() => {
-      setSignInSuccess(false);
-      setShowSignInForm(false);
-      setEmail('');
-      setPassword('');
-    }, 3000);
+    try {
+      const response = await fetch('https://shop-co-back.vercel.app/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      if (response.ok) {
+        setSignInSuccess(true);
+        setIsLoggedIn(true);
+        setWelcomeMessage(`Welcome, ${email}!`);
+        setSignInError(''); 
+        setEmail('');
+        setPassword('');
+        setTimeout(() => {
+          setSignInSuccess(false);
+        }, 3000);
+      } else {
+        setSignInError('This account has not been registered.');
+        setTimeout(() => {
+          setSignInError('');
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Sign in error:', error);
+      setSignInError('An error occurred. Please try again.');
+      setTimeout(() => {
+        setSignInError('');
+      }, 3000);
+    }
+  };
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('https://shop-co-back.vercel.app/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+      if (response.ok) {
+        setSignUpSuccess(true);
+        setIsLoggedIn(true);
+        setWelcomeMessage(`Welcome, ${email}!`);
+        setSignUpError(''); 
+        setUsername('');
+        setEmail('');
+        setPassword('');
+        setTimeout(() => {
+          setSignUpSuccess(false);
+          setCurrentPage("Home");
+        }, 3000);
+      } else {
+        setSignUpError('This account has been registered before');
+        setTimeout(() => {
+          setSignUpError('');
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Sign up error:', error);
+      setSignUpError('An error occurred. Please try again.');
+      setTimeout(() => {
+        setSignUpError('');
+      }, 3000);
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setWelcomeMessage('');
+    setShowSignInForm(false);
+    setCurrentPage("Home");
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('welcomeMessage');
   };
 
   return (
@@ -101,12 +182,21 @@ const Header = ({ setCurrentPage, currentPage }) => {
               <span className="material-icons">dark_mode</span>
             )}
           </button>
-          <button 
-            className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-500"
-            onClick={() => setShowSignInForm(!showSignInForm)}
-          >
-            Sign In
-          </button>
+          {!isLoggedIn ? (
+            <button 
+              className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-500"
+              onClick={() => setShowSignInForm(!showSignInForm)}
+            >
+              Login
+            </button>
+          ) : (
+            <button 
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          )}
           <button
             onClick={toggleMenu}
             className="p-2 rounded-full border border-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -116,55 +206,157 @@ const Header = ({ setCurrentPage, currentPage }) => {
         </div>
       </div>
 
-      {/* Sign In Form */}
+      {/* Sign In/Sign Up Forms and Welcome Message */}
       {showSignInForm && (
-       <div className="flex items-center justify-center  bg-gray-50 dark:bg-gray-700 ">
-       <div className="relative mt-2 w-80 bg-white border-1 dark:bg-gray-800  rounded-lg shadow-xl p-6 z-50 mb-6 ">
-         <form onSubmit={handleSignIn} className="space-y-4 ">
-           <div>
-             <label htmlFor="email" className="block text-sm font-medium dark:text-white  text-gray-700">
-               Email
-             </label>
-             <input
-               type="email"
-               id="email"
-               value={email}
-              placeholder="Enter your email"
-               onChange={(e) => setEmail(e.target.value)}
-               className="mt-1 dark:bg-gray-800  block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 pl-3 "
-               required
-             />
-           </div>
-           <div>
-             <label htmlFor="password" className="block text-sm font-medium dark:text-white  text-gray-700">
-               Password
-             </label>
-             <input
-               type="password"
-               id="password"
-              placeholder="Enter your password"
-               value={password}
-               onChange={(e) => setPassword(e.target.value)}
-               className="mt-1 dark:bg-gray-800 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 pl-3"
-               required
-             />
-           </div>
-           <button
-             type="submit"
-             className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200"
-           >
-             Sign In
-           </button>
-           {signInSuccess && (
-             <p className="text-green-600 text-center mt-2">
-               Successfully signed in!
-             </p>
-           )}
-         </form>
-       </div>
-       
-     </div>
-     
+        <div className="flex items-center justify-center bg-gray-50 dark:bg-gray-700">
+          <div className="relative mt-2 w-80 bg-white border-1 dark:bg-gray-800 rounded-lg shadow-xl p-6 z-50 mb-6">
+            {!isLoggedIn ? (
+              !isSignUpForm ? (
+                <>
+                  <h2 className="text-xl font-semibold mb-4 text-center dark:text-white">
+                    Sign in to your account
+                  </h2>
+                  <p className="text-center mb-4">
+                    Or{' '}
+                    <button 
+                      className="text-green-600 hover:underline"
+                      onClick={() => setIsSignUpForm(true)}
+                    >
+                      create new account
+                    </button>
+                  </p>
+                  {signInError && (
+                    <p className="text-red-600 text-center mb-4">{signInError}</p>
+                  )}
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium dark:text-white text-gray-700">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        placeholder="Enter your email"
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="mt-1 dark:bg-gray-800 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 pl-3"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="password" className="block text-sm font-medium dark:text-white text-gray-700">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="mt-1 dark:bg-gray-800 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 pl-3"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200"
+                    >
+                      Sign In
+                    </button>
+                    {signInSuccess && (
+                      <p className="text-green-600 text-center mt-2">
+                        Successfully signed in!
+                      </p>
+                    )}
+                  </form>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-xl font-semibold mb-4 text-center dark:text-white">
+                    Create your account
+                  </h2>
+                  <p className="text-center mb-4">
+                    Already have account?{' '}
+                    <button 
+                      className="text-green-600 hover:underline"
+                      onClick={() => setIsSignUpForm(false)}
+                    >
+                      Sign in
+                    </button>
+                  </p>
+                  {signUpError && (
+                    <p className="text-red-600 text-center mb-4">{signUpError}</p>
+                  )}
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div>
+                      <label htmlFor="username" className="block text-sm font-medium dark:text-white text-gray-700">
+                        User name
+                      </label>
+                      <input
+                        type="text"
+                        id="username"
+                        value={username}
+                        placeholder="Enter your username"
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="mt-1 dark:bg-gray-800 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 pl-3"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium dark:text-white text-gray-700">
+                        Email address
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        placeholder="Enter your email"
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="mt-1 dark:bg-gray-800 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 pl-3"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="password" className="block text-sm font-medium dark:text-white text-gray-700">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="mt-1 dark:bg-gray-800 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 pl-3"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200"
+                    >
+                      Sign Up
+                    </button>
+                    {signUpSuccess && (
+                      <p className="text-green-600 text-center mt-2">
+                        Account created successfully!
+                      </p>
+                    )}
+                  </form>
+                </>
+              )
+            ) : (
+              <div>
+                <p className="text-green-600 text-center text-lg mb-4">{welcomeMessage}</p>
+                <button
+                  onClick={() => setShowSignInForm(false)}
+                  className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200"
+                >
+                  Close
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Sidebar Menu */}
