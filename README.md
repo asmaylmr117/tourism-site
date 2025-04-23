@@ -1,8 +1,36 @@
-# React + Vite
+# 🧭 Tourism Site
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Tourism Site** is an immersive and visually stunning website designed to inspire and guide users to discover top travel destinations around the world. Whether you're planning your next adventure or just exploring, this site offers a smooth and informative experience.
 
-Currently, two official plugins are available:
+## 🔗 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+✈️ Visit the live website:  
+👉 [**Tourism Site Live**](https://tourism-site-six.vercel.app/)
+
+## 🧰 Technologies Used
+
+- **HTML5**
+- **CSS3**
+- **Tailwind CSS**
+- **JavaScript / TypeScript**
+- **React.js / Next.js**
+- **Redux**
+- **Redux Toolkit**
+
+## 🌍 Features
+
+- 🏝️ Explore famous travel destinations with images, descriptions, and maps.
+- 📸 Photo galleries with stunning visuals for each destination.
+- 📅 Activity and tour booking interface (if implemented).
+- 🔎 Search and filtering by location, activity, or budget.
+- 🧳 Sections for hotels, restaurants, and local attractions.
+- 💬 Contact or inquiry form for tour planning.
+- 🎨 Clean and responsive UI with Tailwind CSS.
+- 🔄 Efficient state management with Redux Toolkit.
+- 🌐 Fully responsive design for all screen sizes.
+
+## ⚙️ Getting Started
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/tourism-site.git
