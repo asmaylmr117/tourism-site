@@ -29,8 +29,5 @@
 - 🔄 Efficient state management with Redux Toolkit.
 - 🌐 Fully responsive design for all screen sizes.
 
-## ⚙️ Getting Started
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/tourism-site.git
+
